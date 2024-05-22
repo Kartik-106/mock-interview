@@ -1,0 +1,80 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  email String  @unique
+  name  String?
+  skills String[]
+  level Int[]
+  generalInterviews GeneralInterview[]
+  technicalInterviews TechnicalInterview[]
+}
+
+model GeneralInterview {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id])
+  recordingUrl String?
+  resumeUrl String?
+  jobDescription String?
+  textTranscribe String?
+  review String?
+  suggestions String?
+  skills String[]
+  score Int[]
+}
+
+model TechnicalInterview {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id])
+
+  questionId String @db.ObjectId
+  question InterviewQuestion @relation(fields: [questionId], references: [id])
+  solution String
+  solutionLanguage Languages
+  review String?
+  suggestions String?
+}
+
+model InterviewQuestion {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    question String
+
+    placeholders InterviewQuestionPlaceholder[]
+    testcases InterviewQuestionTestCase[]
+    technicalInterviews TechnicalInterview[]
+}
+
+model InterviewQuestionPlaceholder {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    placeholder String
+    codingLanguage Languages
+
+    questionId String @db.ObjectId
+    question InterviewQuestion @relation(fields: [questionId], references: [id])
+}
+
+model InterviewQuestionTestCase {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    testcase String
+    correctOutput String
+    testerCode String
+    codingLanguauge Languages
+
+    questionId String @db.ObjectId
+    question InterviewQuestion @relation(fields: [questionId], references: [id])
+}
+
+enum Languages{
+    CPP
+    PYTHON
+    JAVA
+}
